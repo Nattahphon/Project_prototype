@@ -36,6 +36,8 @@ from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
+load_dotenv()
+
 # Add these constants at the top of your file, after the imports
 STATIC_DIR = "static"
 PLOT_DIR = os.path.join(STATIC_DIR, "plots")
