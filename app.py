@@ -2,6 +2,7 @@ import logging
 import re
 import traceback
 from deep_translator import GoogleTranslator
+from dotenv import load_dotenv
 import streamlit as st
 import os
 from datetime import datetime
@@ -13,9 +14,9 @@ from typhoon_SPagent_modify import TyphoonAgent, PLOT_DIR
 from H_datahandle_app import DataHandler
 import matplotlib.pyplot as plt
 import numpy as np
-from dotenv import load_dotenv
 
 load_dotenv()
+
 # Constants and Configurations
 APP_NAME = "Data Analysis Assistant 📊"
 BASE_SESSION_DIR = "sessions"
@@ -138,6 +139,16 @@ st.markdown("""
 def translate_func(target_lang, text):
     translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
     return translated
+
+def get_model_base_url(model):
+    if model == "typhoon-v1.5x-70b-instruct":
+        return "https://api.opentyphoon.ai/v1"
+    elif model == "typhoon-v2-70b-instruct":
+        return "https://api.opentyphoon.ai/v1"
+    elif model == "openai-gpt-3.5-turbo": # ref Docs : https://www.restack.io/p/openai-python-answer-base-url-cat-ai
+        return "https://api.opentyphoon.ai/v1"
+    else: 
+        return "https://api.opentyphoon.ai/v1"
 
 # Session Class
 class Session:
@@ -273,7 +284,7 @@ def start_new_session():
     st.success(f"Started new session: {session.session_id[:8]}")
     return session
 
-def switch_session(session_id: str):
+def switch_session(session_id: str, selected_model: str, temperature: float):
     try:
         # Retrieve the session
         session = st.session_state['session_manager'].load_session(session_id)
@@ -287,9 +298,9 @@ def switch_session(session_id: str):
         # Initialize TyphoonAgent with the new session details
         dataset_key = os.path.splitext(os.path.basename(session.file_path))[0]
         st.session_state['typhoon_agent'] = TyphoonAgent(
-            temperature=0.1,
-            base_url="https://api.opentyphoon.ai/v1",
-            model_name="typhoon-v2-70b-instruct",
+            temperature=temperature,
+            base_url=get_model_base_url(selected_model),
+            model_name=selected_model,
             dataset_paths={dataset_key: session.file_path},
             dataset_key=dataset_key,
             session_id=session.session_id
@@ -400,6 +411,7 @@ def main():
         model_options = {
             "typhoon-v1.5x": "typhoon-v1.5x-70b-instruct",
             "typhoon-v2": "typhoon-v2-70b-instruct",
+            "open_ai": "typhoon-v2-70b-instruct"
         }
         selected_model:str = st.selectbox("🦾 Model Settings", list(model_options.values()))
         
@@ -421,7 +433,7 @@ def main():
                         st.info(f"Session {session.session_id[:8]}\n{session.last_activity}")
                     with col2:
                         if st.button("Switch", key=f"switch_{session.session_id}"):
-                            switch_session(session.session_id)
+                            switch_session(session.session_id, selected_model, temperature)
                     with col3:
                         if st.button("Delete", key=f"delete_{session.session_id}"):
                             if st.session_state['current_session'] and session.session_id == st.session_state['current_session'].session_id:
@@ -452,9 +464,9 @@ def main():
                             # Initialize TyphoonAgent
                             dataset_key = os.path.splitext(uploaded_file.name)[0]
                             st.session_state['typhoon_agent'] = TyphoonAgent(
-                                temperature=0.1,
-                                base_url="https://api.opentyphoon.ai/v1",
-                                model_name="typhoon-v2-70b-instruct",
+                                temperature=temperature,
+                                base_url=get_model_base_url(selected_model),
+                                model_name=selected_model,
                                 dataset_paths={dataset_key: file_path},
                                 dataset_key=dataset_key,
                                 session_id=current_session.session_id
