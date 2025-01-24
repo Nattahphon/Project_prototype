@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 import json
 # Disable LangSmith tracking
 os.environ["LANGCHAIN_TRACING_V2"] = "false"
+load_dotenv()
 
 # First, create a Pydantic model for your output structure
 class PlotResponse(BaseModel):
