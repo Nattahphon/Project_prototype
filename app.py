@@ -13,7 +13,9 @@ from typhoon_SPagent_modify import TyphoonAgent, PLOT_DIR
 from H_datahandle_app import DataHandler
 import matplotlib.pyplot as plt
 import numpy as np
+from dotenv import load_dotenv
 
+load_dotenv()
 # Constants and Configurations
 APP_NAME = "Data Analysis Assistant 📊"
 BASE_SESSION_DIR = "sessions"
