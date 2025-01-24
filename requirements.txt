@@ -1,0 +1,14 @@
+deep_translator==1.11.4
+langchain==0.3.15
+langchain_core==0.3.31
+langchain_experimental==0.3.4
+langchain_openai==0.3.2
+matplotlib==3.10.0
+numpy==2.2.2
+pandas==2.2.3
+pydantic==2.10.6
+python-dotenv==1.0.1
+pytz==2024.2
+seaborn==0.13.2
+streamlit==1.41.1
+tabulate==0.9.0
