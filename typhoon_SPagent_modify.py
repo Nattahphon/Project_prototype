@@ -414,17 +414,6 @@ class TyphoonAgent:
         
         return json_explanation
 
-    # def decode_unicode(self, data):
-    #     """Decode Unicode escape sequences in a Python dictionary."""
-    #     if isinstance(data, str):
-    #         return data
-    #     elif isinstance(data, dict):
-    #         return {k: self.decode_unicode(v) for k, v in data.items()}
-    #     elif isinstance(data, list):
-    #         return [self.decode_unicode(v) for v in data]
-    #     else:
-    #         return data
-        
     def _process_tool_output(self, output) -> Dict[str, Any]:
         """Process tool output into a standardized format."""
         if isinstance(output, dict):
@@ -519,7 +508,7 @@ class TyphoonAgent:
             )
 
             return TyphoonResponse(
-                query=user_input,
+                query=input_query,
                 response=main_response,
                 raw_response=extracted_text,
                 sub_response=sub_response,
@@ -539,7 +528,7 @@ class TyphoonAgent:
             )
             
             return TyphoonResponse(
-                query=user_input,
+                query=input_query,
                 response="Error occurred during processing",
                 sub_response={},
                 plot_data={"plots": []},
