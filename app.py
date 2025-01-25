@@ -21,7 +21,7 @@ load_dotenv()
 APP_NAME = "Data Analysis Assistant 📊"
 BASE_SESSION_DIR = "sessions"
 TEMP_UPLOAD_DIR = "temp_uploads"
-CURRENT_USER = "Nattahphon"
+# CURRENT_USER = "Nattahphon"
 
 # Set page configuration
 st.set_page_config(
@@ -152,10 +152,9 @@ def get_model_base_url(model):
 
 # Session Class
 class Session:
-    def __init__(self, session_id=None, user=CURRENT_USER):
+    def __init__(self, session_id=None):
         self.session_id = session_id or str(uuid.uuid4())
         self.created_at = datetime.now(pytz.UTC).strftime('%Y-%m-%d %H:%M:%S')
-        self.user = user
         self.messages = []
         self.uploaded_file = None
         self.file_path = None
@@ -165,7 +164,6 @@ class Session:
         return {
             'session_id': self.session_id,
             'created_at': self.created_at,
-            'user': self.user,
             'messages': self.messages,
             'file_path': self.file_path,
             'last_activity': self.last_activity
@@ -173,7 +171,7 @@ class Session:
     
     @classmethod
     def from_dict(cls, data):
-        session = cls(session_id=data['session_id'], user=data.get('user', CURRENT_USER))
+        session = cls(session_id=data['session_id'])
         session.created_at = data['created_at']
         session.messages = data['messages']
         session.file_path = data['file_path']
@@ -195,8 +193,8 @@ class SessionManager:
     def get_session_dir(self, session_id):
         return os.path.join(self.base_dir, session_id)
     
-    def create_session(self, user=CURRENT_USER):
-        session = Session(user=user)
+    def create_session(self):
+        session = Session()
         session_dir = self.get_session_dir(session.session_id)
         os.makedirs(session_dir, exist_ok=True)
         self.save_session(session)
@@ -227,13 +225,13 @@ class SessionManager:
         if os.path.exists(session_dir):
             shutil.rmtree(session_dir)
     
-    def list_sessions(self, user=CURRENT_USER):
+    def list_sessions(self):
         if not os.path.exists(self.base_dir):
             return []
         sessions = []
         for session_id in os.listdir(self.base_dir):
             session = self.load_session(session_id)
-            if session and session.user == user:
+            if session:
                 sessions.append(session)
         return sorted(sessions, key=lambda x: x.last_activity, reverse=True)
 
@@ -276,6 +274,8 @@ if 'typhoon_agent' not in st.session_state:
     st.session_state['typhoon_agent'] = None
 if 'messages' not in st.session_state:
     st.session_state['messages'] = []
+if 'initial_message_sent' not in st.session_state:
+    st.session_state['initial_message_sent'] = False 
 
 # Session Management Functions
 def start_new_session():
@@ -455,6 +455,7 @@ def main():
 
                 if uploaded_file:
                     file_path = save_uploaded_file(uploaded_file, current_session.session_id)
+                    st.session_state['initial_message_sent'] = False
                     if file_path:
                         try:
                             data_handler = load_data(file_path, current_session.session_id)
@@ -473,6 +474,9 @@ def main():
                             )
                             st.session_state['session_manager'].save_session(current_session)
                             st.success(f"Successfully loaded {uploaded_file.name}")
+                            if not st.session_state['initial_message_sent']:
+                                handle_submit(user_input="🔛 start Assistant system.")
+                                st.session_state['initial_message_sent'] = True
                         except Exception as e:
                             st.error(f"Error loading file: {str(e)}")
             else:
@@ -531,7 +535,6 @@ def main():
             key='user_input',
             placeholder="Type your message and press Enter"
         )
-        
         if user_input:
             handle_submit(user_input)
     else:
