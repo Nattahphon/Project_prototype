@@ -534,7 +534,7 @@ def main():
                         st.markdown(f"""
                         <div class="assistant-messagel">
                             <div style="display: flex; justify-content: space-between;">
-                                <div>🤖 Assistant:{message["content"].get("response", "")}</div>
+                                <div>🤖 Assistant: {message["content"].get("response", "")}</div>
                             </div>
                         </div>
                         """, unsafe_allow_html=True)
