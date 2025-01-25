@@ -135,12 +135,19 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+def convert_json_to_str(data):    
+    clean_str = "\n".join([
+            f"{key.capitalize()}: {value if isinstance(value, str) else ', '.join(value)}"
+            for key, value in data.items()
+        ])
+    return clean_str
+
 def translate_func(target_lang, text):
     try:
         translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
         return translated
     except:
-        return text
+        return GoogleTranslator(source='auto', target=target_lang).translate(convert_json_to_str(data=text))
 
 def get_model_base_url(model):
     if model == "typhoon-v1.5x-70b-instruct":
