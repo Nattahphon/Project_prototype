@@ -143,11 +143,8 @@ def convert_json_to_str(data):
     return clean_str
 
 def translate_func(target_lang, text):
-    try:
-        translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
-        return translated
-    except:
-        return GoogleTranslator(source='auto', target=target_lang).translate(convert_json_to_str(data=text))
+    translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
+    return translated
 
 def get_model_base_url(model):
     if model == "typhoon-v1.5x-70b-instruct":
@@ -529,7 +526,10 @@ def main():
                         if pandas_response.get("explanation"):
                             st.markdown("🤖 Assistant:")
                             explan = pandas_response["explanation"].get("explanation", "")
-                            st.write(translate_func(target_lang='th', text=explan))
+                            try:
+                                st.write(translate_func(target_lang='th', text=explan))
+                            except:
+                                st.text(GoogleTranslator(source='auto', target='th').translate(convert_json_to_str(data=explan)))
                     else:
                         st.markdown(f"""
                         <div class="assistant-messagel">
