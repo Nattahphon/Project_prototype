@@ -139,7 +139,7 @@ def translate_func(target_lang, text):
     try:
         translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
         return translated
-    except Exception as e:
+    except:
         return text
 
 def get_model_base_url(model):
