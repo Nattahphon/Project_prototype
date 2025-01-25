@@ -21,7 +21,6 @@ load_dotenv()
 APP_NAME = "Data Analysis Assistant 📊"
 BASE_SESSION_DIR = "sessions"
 TEMP_UPLOAD_DIR = "temp_uploads"
-# CURRENT_USER = "Nattahphon"
 
 # Set page configuration
 st.set_page_config(
@@ -137,8 +136,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def translate_func(target_lang, text):
-    translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
-    return translated
+    try:
+        translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
+        return translated
+    except Exception as e:
+        return text
 
 def get_model_base_url(model):
     if model == "typhoon-v1.5x-70b-instruct":
