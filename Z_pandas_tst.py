@@ -56,6 +56,7 @@ class PandasAgent:
         prefix = f"""
         You are a Python expert specializing in data processing and analysis. 
         You are working with a DataFrame. Columns are: {', '.join(df.columns)}.
+        that has datatype is: {', '.join(f"{col}: {dtype}" for col, dtype in df.dtypes.to_dict().items())}.
         Your role is to analyze and manipulate DataFrames in Python.
         Your output must strictly follow this JSON format: {self.output_parser.get_format_instructions()}
         """.strip()
