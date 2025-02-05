@@ -142,9 +142,52 @@ def convert_json_to_str(data):
         ])
     return clean_str
 
+def convert_json_to_text(data, indent=0):
+    """
+    แปลงข้อมูล JSON (dict หรือ list) ให้เป็นข้อความที่อ่านง่าย
+    """
+    spaces = " " * indent
+    if isinstance(data, dict):
+        lines = []
+        for key, value in data.items():
+            # ถ้า value เป็น dict หรือ list ให้เรียกใช้ฟังก์ชันแบบ recursive
+            if isinstance(value, (dict, list)):
+                lines.append(f"{spaces}{key.capitalize()}:")
+                lines.append(convert_json_to_text(value, indent=indent + 2))
+            else:
+                lines.append(f"{spaces}{key.capitalize()}: {value}")
+        return "\n".join(lines)
+    elif isinstance(data, list):
+        lines = []
+        for index, item in enumerate(data):
+            lines.append(f"{spaces}- {convert_json_to_text(item, indent=indent + 2)}")
+        return "\n".join(lines)
+    else:
+        return f"{spaces}{data}"
+
+def json_to_text(json_input):
+    """
+    รับ input เป็น JSON string หรือ dict แล้วแปลงเป็นข้อความที่อ่านง่าย
+    """
+    # ถ้า input เป็น string ให้แปลงเป็น dict ก่อน
+    if isinstance(json_input, str):
+        try:
+            data = json.loads(json_input)
+        except json.JSONDecodeError:
+            # หากไม่สามารถแปลงได้ ให้คืนค่า input เดิม
+            return json_input
+    else:
+        data = json_input
+
+    return convert_json_to_text(data)
+
 def translate_func(target_lang, text):
-    translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
-    return translated
+    normal_text = json_to_text(text)
+    try:
+        translated = GoogleTranslator(source='auto', target=target_lang).translate(normal_text)
+        return translated
+    except:
+        return normal_text
 
 def get_model_base_url(model):
     if model == "typhoon-v1.5x-70b-instruct":
