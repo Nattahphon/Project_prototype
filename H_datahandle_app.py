@@ -294,4 +294,3 @@ class DataHandler:
         if key not in self._data:
             raise ValueError(f"Data for key '{key}' not loaded.")
         return self._data[key]
-
